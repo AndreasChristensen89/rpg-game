@@ -1,0 +1,20 @@
+{
+  "name": "rpg-game",
+  "version": "1.0.0",
+  "description": "A 2D RPG game built with Phaser",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "Phaser",
+    "RPG",
+    "2D",
+    "game"
+  ],
+  "author": "Andreas Christensen",
+  "license": "ISC",
+  "dependencies": {
+    "phaser": "^3.60.0"
+  }
+}
