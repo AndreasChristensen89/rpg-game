@@ -42,6 +42,25 @@ let player = {
 };
 
 class BaseScene extends Phaser.Scene {
+    constructor(config) {
+        super(config);
+    }
+
+    createMessage() {
+        // Create the message text off-screen
+        this.messageText = this.add.text(this.cameras.main.centerX, this.cameras.main.height + 50, '', {
+            fontSize: '32px',
+            fill: '#fff',
+            backgroundColor: 'rgba(0, 0, 0, 0.7)',
+            padding: {
+                left: 15,
+                right: 15,
+                top: 10,
+                bottom: 10
+            }
+        }).setOrigin(0.5, 1);
+    }
+
     showMessage(message) {
         this.messageText.setText(message);
         this.tweens.add({
@@ -71,7 +90,7 @@ class MainScene extends BaseScene {
 
     create() {
         // Blue background for home
-        this.cameras.main.setBackgroundColor('#0000ff');
+        this.cameras.main.setBackgroundColor('#353A47');
     
         // Button to sleep
         let sleepButton = this.add.text(100, 100, 'Sleep', { fill: '#fff' }).setInteractive();
@@ -87,19 +106,9 @@ class MainScene extends BaseScene {
     
         this.statusDisplay = this.add.text(10, 10, player.getStatus(), { fill: '#fff', fontSize: '20px' });
         this.fullscreenKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
-    
-        // Create the message text off-screen
-        this.messageText = this.add.text(this.cameras.main.centerX, this.cameras.main.height + 50, '', {
-            fontSize: '32px',
-            fill: '#fff',
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            padding: {
-                left: 15,
-                right: 15,
-                top: 10,
-                bottom: 10
-            }
-        }).setOrigin(0.5, 1);
+        
+        // prepare message from baseScene
+        this.createMessage();
     }    
 
     update() {
@@ -120,6 +129,7 @@ class MainScene extends BaseScene {
         if (player.energy !== 100) {
             player.applyPenaltyAndSleep();
         } else {
+            // use message from BaseScene
             this.showMessage("No need to sleep. You're already 100%");
         }
     }
@@ -132,7 +142,7 @@ class WorkScene extends BaseScene {
 
     create() {
         // Green background for work
-        this.cameras.main.setBackgroundColor('#00ff00');
+        this.cameras.main.setBackgroundColor('#016FB9');
     
         // Button to start working
         let workActionBtn = this.add.text(100, 100, 'Work', { fill: '#fff' }).setInteractive();
@@ -146,19 +156,8 @@ class WorkScene extends BaseScene {
     
         // Status Display for player's attributes
         this.statusDisplay = this.add.text(10, 10, player.getStatus(), { fill: '#fff', fontSize: '20px' });
-    
-        // Create the message text off-screen for displaying messages
-        this.messageText = this.add.text(this.cameras.main.centerX, this.cameras.main.height + 50, '', {
-            fontSize: '32px',
-            fill: '#fff',
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            padding: {
-                left: 15,
-                right: 15,
-                top: 10,
-                bottom: 10
-            }
-        }).setOrigin(0.5, 1);
+        // prepare message from baseScene
+        this.createMessage();
     }
 
     update() {
@@ -172,6 +171,7 @@ class WorkScene extends BaseScene {
                 energy: -20
             });
         } else {
+            // use message from baseScene
             this.showMessage("Not enough energy to work!");
         }
     }
@@ -185,7 +185,7 @@ class SchoolScene extends BaseScene {
 
     create() {
         // Orange background for school
-        this.cameras.main.setBackgroundColor('#ffa500');
+        this.cameras.main.setBackgroundColor('#93BEDF');
     
         // Button to study
         let studyButton = this.add.text(100, 100, 'Study', { fill: '#fff' }).setInteractive();
@@ -200,18 +200,7 @@ class SchoolScene extends BaseScene {
         // Status Display for player's attributes
         this.statusDisplay = this.add.text(10, 10, player.getStatus(), { fill: '#fff', fontSize: '20px' });
     
-        // Create the message text off-screen for displaying messages
-        this.messageText = this.add.text(this.cameras.main.centerX, this.cameras.main.height + 50, '', {
-            fontSize: '32px',
-            fill: '#fff',
-            backgroundColor: 'rgba(0, 0, 0, 0.7)',
-            padding: {
-                left: 15,
-                right: 15,
-                top: 10,
-                bottom: 10
-            }
-        }).setOrigin(0.5, 1);
+        this.createMessage();
     }    
 
     update() {
