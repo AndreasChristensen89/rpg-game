@@ -110,6 +110,10 @@ class MainScene extends BaseScene {
         // Button to go to bar
         let barButton = this.add.text(550, 100, 'Go to the Bar', { fill: '#fff' }).setInteractive();
         barButton.on('pointerdown', () => this.scene.start('BarScene'));
+
+        // Button to go to cafe
+        let cafeButton = this.add.text(100, 200, 'Go to the Cafe', { fill: '#fff' }).setInteractive();
+        cafeButton.on('pointerdown', () => this.scene.start('CafeScene'));
     
         this.statusDisplay = this.add.text(10, 10, player.getStatus(), { fill: '#fff', fontSize: '20px' });
         this.fullscreenKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
@@ -272,12 +276,53 @@ class BarScene extends BaseScene {
     }
 }
 
+class CafeScene extends BaseScene {
+    constructor() {
+        super({ key: 'CafeScene' });
+    }
+
+    create() {
+        // Orange background for school
+        this.cameras.main.setBackgroundColor('#016FB9');
+    
+        // Button to study
+        let converseButton = this.add.text(100, 100, 'Converse', { fill: '#fff' }).setInteractive();
+    
+        // Bind 'this' to the studyAction method when setting up the event handler
+        converseButton.on('pointerdown', this.converseAction.bind(this));
+    
+        // Button to return home
+        let homeButton = this.add.text(100, 150, 'Go Home', { fill: '#fff' }).setInteractive();
+        homeButton.on('pointerdown', () => this.scene.start('MainScene'));
+    
+        // Status Display for player's attributes
+        this.statusDisplay = this.add.text(10, 10, player.getStatus(), { fill: '#fff', fontSize: '20px' });
+    
+        this.createMessage();
+    }    
+
+    update() {
+        this.statusDisplay.text = player.getStatus();
+    }
+
+    converseAction() {
+        if (player.hasSufficientEnergy(25)) {
+            player.updateAttributes({
+                intellect: 5,
+                energy: -25,
+            });
+        } else {
+            this.showMessage("Not enough energy to converse!")
+        }
+    }
+}
+
 // Game configuration
 const config = {
     type: Phaser.AUTO,
     width: 800, // initial width
     height: 600, // initial height
-    scene: [MainScene, WorkScene, SchoolScene, BarScene], // other configurations
+    scene: [MainScene, WorkScene, SchoolScene, BarScene, CafeScene], // other configurations
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH
