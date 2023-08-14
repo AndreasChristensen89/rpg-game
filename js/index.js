@@ -12,7 +12,7 @@ let player = {
     has_job: false,
     items: [],
     getStatus() {
-        return `Day: ${this.day} | Energy: ${this.energy} | Money: $${this.money}`;
+        return `Day: ${this.day} | Energy: ${this.energy} | Money: $${this.money} | Charm: ${this.charm}`;
     },
     updateAttributes(attrChanges) {
         for (let attr in attrChanges) {
@@ -33,6 +33,9 @@ let player = {
     },
     hasSufficientEnergy(requiredEnergy) {
         return this.energy >= requiredEnergy;
+    },
+    hasEnoughMoney(requiredMoney) {
+        return this.money >= requiredMoney;
     },
     endGame() {
         // Logic for ending the game
@@ -103,6 +106,10 @@ class MainScene extends BaseScene {
         // Button to go to school
         let schoolButton = this.add.text(400, 100, 'Go to School', { fill: '#fff' }).setInteractive();
         schoolButton.on('pointerdown', () => this.scene.start('SchoolScene'));
+
+        // Button to go to bar
+        let barButton = this.add.text(550, 100, 'Go to the Bar', { fill: '#fff' }).setInteractive();
+        barButton.on('pointerdown', () => this.scene.start('BarScene'));
     
         this.statusDisplay = this.add.text(10, 10, player.getStatus(), { fill: '#fff', fontSize: '20px' });
         this.fullscreenKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
@@ -220,12 +227,57 @@ class SchoolScene extends BaseScene {
     }
 }
 
+class BarScene extends BaseScene {
+    constructor() {
+        super({ key: 'BarScene' });
+    }
+
+    create() {
+        // Orange background for school
+        this.cameras.main.setBackgroundColor('#016FB9');
+    
+        // Button to study
+        let drinkButton = this.add.text(100, 100, 'Drink', { fill: '#fff' }).setInteractive();
+    
+        // Bind 'this' to the studyAction method when setting up the event handler
+        drinkButton.on('pointerdown', this.drinkAction.bind(this));
+    
+        // Button to return home
+        let homeButton = this.add.text(100, 150, 'Go Home', { fill: '#fff' }).setInteractive();
+        homeButton.on('pointerdown', () => this.scene.start('MainScene'));
+    
+        // Status Display for player's attributes
+        this.statusDisplay = this.add.text(10, 10, player.getStatus(), { fill: '#fff', fontSize: '20px' });
+    
+        this.createMessage();
+    }    
+
+    update() {
+        this.statusDisplay.text = player.getStatus();
+    }
+
+    drinkAction() {
+        if (player.hasSufficientEnergy(25) && player.hasEnoughMoney(10)) {
+            player.updateAttributes({
+                charm: 5,
+                money: -10,
+                energy: -25,
+            });
+        } 
+        if (!player.hasSufficientEnergy(25)) {
+            this.showMessage("Not enough energy to drink!");
+        } else if (!player.hasEnoughMoney(10)) {
+            this.showMessage("Not enough money to drink!")
+        }
+    }
+}
+
 // Game configuration
 const config = {
     type: Phaser.AUTO,
     width: 800, // initial width
     height: 600, // initial height
-    scene: [MainScene, WorkScene, SchoolScene], // other configurations
+    scene: [MainScene, WorkScene, SchoolScene, BarScene], // other configurations
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH
