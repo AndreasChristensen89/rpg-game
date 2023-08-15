@@ -49,6 +49,29 @@ class BaseScene extends Phaser.Scene {
         super(config);
     }
 
+    create() {
+        this.statusDisplay = this.add.text(10, 10, player.getStatus(), {
+            fill: '#000', // Black text
+            fontSize: '20px',
+            backgroundColor: '#fff', // White background
+            padding: {
+                left: 5,
+                right: 5,
+                top: 5,
+                bottom: 5
+            }
+        }).setDepth(9999); // similar to z-index
+        this.fullscreenKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
+    }
+
+    setBackground(key) {
+        let bg = this.add.image(0, 0, key).setOrigin(0, 0);
+        let scaleX = this.cameras.main.width / bg.width;
+        let scaleY = this.cameras.main.height / bg.height;
+        let scale = Math.max(scaleX, scaleY);
+        bg.setScale(scale);
+    }
+
     createMessage() {
         // Create the message text off-screen
         this.messageText = this.add.text(this.cameras.main.centerX, this.cameras.main.height + 50, '', {
@@ -62,6 +85,10 @@ class BaseScene extends Phaser.Scene {
                 bottom: 10
             }
         }).setOrigin(0.5, 1);
+    }
+
+    update() {
+        this.statusDisplay.text = player.getStatus();
     }
 
     showMessage(message) {
@@ -85,38 +112,25 @@ class BaseScene extends Phaser.Scene {
     }
 }
 
-
 class MainScene extends BaseScene {
     constructor() {
         super({ key: 'MainScene' });
     }
 
+    preload() {
+    this.load.image('homeBackground', 'assets/images/house_repeat.png');
+    }
+
     create() {
-        // Blue background for home
-        this.cameras.main.setBackgroundColor('#353A47');
+        super.create();
+
+        this.setBackground('homeBackground');
     
-        // Button to sleep
         let sleepButton = this.add.text(100, 100, 'Sleep', { fill: '#fff' }).setInteractive();
         sleepButton.on('pointerdown', this.sleep.bind(this)); // Bind 'this' context to the sleep function
-    
-        // Button to go to work
-        let workButton = this.add.text(250, 100, 'Go to Work', { fill: '#fff' }).setInteractive();
-        workButton.on('pointerdown', () => this.scene.start('WorkScene'));
-    
-        // Button to go to school
-        let schoolButton = this.add.text(400, 100, 'Go to School', { fill: '#fff' }).setInteractive();
-        schoolButton.on('pointerdown', () => this.scene.start('SchoolScene'));
 
-        // Button to go to bar
-        let barButton = this.add.text(550, 100, 'Go to the Bar', { fill: '#fff' }).setInteractive();
-        barButton.on('pointerdown', () => this.scene.start('BarScene'));
-
-        // Button to go to cafe
-        let cafeButton = this.add.text(100, 200, 'Go to the Cafe', { fill: '#fff' }).setInteractive();
-        cafeButton.on('pointerdown', () => this.scene.start('CafeScene'));
-    
-        this.statusDisplay = this.add.text(10, 10, player.getStatus(), { fill: '#fff', fontSize: '20px' });
-        this.fullscreenKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.F);
+        let downtownButton = this.add.text(250, 100, 'Head Downtown', { fill: '#fff' }).setInteractive();
+        downtownButton.on('pointerdown', () => this.scene.start('DowntownScene'));
         
         // prepare message from baseScene
         this.createMessage();
@@ -125,15 +139,6 @@ class MainScene extends BaseScene {
     update() {
         // Update the player's status display
         this.statusDisplay.text = player.getStatus();
-    
-        // Check for fullscreen toggle
-        if (Phaser.Input.Keyboard.JustDown(this.fullscreenKey)) {
-            if (this.scale.isFullscreen) {
-                this.scale.stopFullscreen();
-            } else {
-                this.scale.startFullscreen();
-            }
-        }
     }    
 
     sleep() {
@@ -146,27 +151,35 @@ class MainScene extends BaseScene {
     }
 }
 
-class WorkScene extends BaseScene {
+class DowntownScene extends BaseScene {
     constructor() {
-        super({ key: 'WorkScene' });
+        super({ key: 'DowntownScene' });
+    }
+
+    preload() {
+    this.load.image('downtownBackground', 'assets/images/downtown_repeat.png');
     }
 
     create() {
-        // Green background for work
-        this.cameras.main.setBackgroundColor('#016FB9');
-    
-        // Button to start working
-        let workActionBtn = this.add.text(100, 100, 'Work', { fill: '#fff' }).setInteractive();
-    
-        // Attach the event with a bound context
-        workActionBtn.on('pointerdown', this.workAction.bind(this));
-    
-        // Button to return home
-        let homeButton = this.add.text(100, 150, 'Go Home', { fill: '#fff' }).setInteractive();
+        super.create();
+
+        this.setBackground("downtownBackground");
+
+        let homeButton = this.add.text(250, 100, 'Return Home', { fill: '#fff' }).setInteractive();
         homeButton.on('pointerdown', () => this.scene.start('MainScene'));
+
+        let backAlleyButton = this.add.text(550, 100, 'Back Alley', { fill: '#fff' }).setInteractive();
+        backAlleyButton.on('pointerdown', () => this.scene.start('BackAlleyScene'));
     
-        // Status Display for player's attributes
-        this.statusDisplay = this.add.text(10, 10, player.getStatus(), { fill: '#fff', fontSize: '20px' });
+        let workButton = this.add.text(250, 200, 'Go to Work', { fill: '#fff' }).setInteractive();
+        workButton.on('pointerdown', () => this.scene.start('WorkScene'));
+
+        let barButton = this.add.text(400, 200, 'Go to the Bar', { fill: '#fff' }).setInteractive();
+        barButton.on('pointerdown', () => this.scene.start('BarScene'));
+
+        let cafeButton = this.add.text(550, 200, 'Go to the Cafe',{ fill: '#fff' }).setInteractive();
+        cafeButton.on('pointerdown', () => this.scene.start('CafeScene'));
+    
         // prepare message from baseScene
         this.createMessage();
     }
@@ -185,50 +198,48 @@ class WorkScene extends BaseScene {
             // use message from baseScene
             this.showMessage("Not enough energy to work!");
         }
-    }
-    
+    } 
 }
 
-class SchoolScene extends BaseScene {
+class WorkScene extends BaseScene {
     constructor() {
-        super({ key: 'SchoolScene' });
+        super({ key: 'WorkScene' });
+    }
+
+    preload() {
+    this.load.image('workBackground', 'assets/images/call_center.png');
     }
 
     create() {
-        // Orange background for school
-        this.cameras.main.setBackgroundColor('#93BEDF');
+        super.create();
+
+        this.setBackground("workBackground");
+
+        let downtownButton = this.add.text(250, 100, 'Return to Downtown', { fill: '#fff' }).setInteractive();
+        downtownButton.on('pointerdown', () => this.scene.start('DowntownScene'));
     
-        // Button to study
-        let studyButton = this.add.text(100, 100, 'Study', { fill: '#fff' }).setInteractive();
+        let workActionBtn = this.add.text(250, 200, 'Work', { fill: '#fff' }).setInteractive();
+        workActionBtn.on('pointerdown', this.workAction.bind(this));
     
-        // Bind 'this' to the studyAction method when setting up the event handler
-        studyButton.on('pointerdown', this.studyAction.bind(this));
-    
-        // Button to return home
-        let homeButton = this.add.text(100, 150, 'Go Home', { fill: '#fff' }).setInteractive();
-        homeButton.on('pointerdown', () => this.scene.start('MainScene'));
-    
-        // Status Display for player's attributes
-        this.statusDisplay = this.add.text(10, 10, player.getStatus(), { fill: '#fff', fontSize: '20px' });
-    
+        // prepare message from baseScene
         this.createMessage();
-    }    
+    }
 
     update() {
         this.statusDisplay.text = player.getStatus();
     }
-
-    studyAction() {
-        if (player.hasSufficientEnergy(25)) {
+    
+    workAction() {
+        if (player.hasSufficientEnergy(20)) {
             player.updateAttributes({
-                intellect: 5,
-                coding: 5,
-                energy: -25
+                money: 50,
+                energy: -20
             });
         } else {
-            this.showMessage("Not enough energy to study!");
+            // use message from baseScene
+            this.showMessage("Not enough energy to work!");
         }
-    }
+    } 
 }
 
 class BarScene extends BaseScene {
@@ -236,22 +247,20 @@ class BarScene extends BaseScene {
         super({ key: 'BarScene' });
     }
 
+    preload() {
+    this.load.image('barBackground', 'assets/images/bar_repeat.png');
+    }
+
     create() {
-        // Orange background for school
-        this.cameras.main.setBackgroundColor('#016FB9');
+        super.create();
+
+        this.setBackground("barBackground");
+
+        let downtownButton = this.add.text(250, 100, 'Return to Downtown', { fill: '#fff' }).setInteractive();
+        downtownButton.on('pointerdown', () => this.scene.start('DowntownScene'));
     
-        // Button to study
-        let drinkButton = this.add.text(100, 100, 'Drink', { fill: '#fff' }).setInteractive();
-    
-        // Bind 'this' to the studyAction method when setting up the event handler
+        let drinkButton = this.add.text(250, 200, 'Drink', { fill: '#fff' }).setInteractive();
         drinkButton.on('pointerdown', this.drinkAction.bind(this));
-    
-        // Button to return home
-        let homeButton = this.add.text(100, 150, 'Go Home', { fill: '#fff' }).setInteractive();
-        homeButton.on('pointerdown', () => this.scene.start('MainScene'));
-    
-        // Status Display for player's attributes
-        this.statusDisplay = this.add.text(10, 10, player.getStatus(), { fill: '#fff', fontSize: '20px' });
     
         this.createMessage();
     }    
@@ -281,28 +290,43 @@ class CafeScene extends BaseScene {
         super({ key: 'CafeScene' });
     }
 
+    preload() {
+    this.load.image('cafeBackground', 'assets/images/cafe_repeat.png');
+    }
+
     create() {
-        // Orange background for school
-        this.cameras.main.setBackgroundColor('#016FB9');
+        super.create();
+
+        this.setBackground('cafeBackground');
+
+        let downtownButton = this.add.text(250, 100, 'Return to Downtown', { fill: '#fff' }).setInteractive();
+        downtownButton.on('pointerdown', () => this.scene.start('DowntownScene'));
     
-        // Button to study
-        let converseButton = this.add.text(100, 100, 'Converse', { fill: '#fff' }).setInteractive();
-    
-        // Bind 'this' to the studyAction method when setting up the event handler
+        // converse
+        let converseButton = this.add.text(250, 200, 'Converse', { fill: '#fff' }).setInteractive();
         converseButton.on('pointerdown', this.converseAction.bind(this));
-    
-        // Button to return home
-        let homeButton = this.add.text(100, 150, 'Go Home', { fill: '#fff' }).setInteractive();
-        homeButton.on('pointerdown', () => this.scene.start('MainScene'));
-    
-        // Status Display for player's attributes
-        this.statusDisplay = this.add.text(10, 10, player.getStatus(), { fill: '#fff', fontSize: '20px' });
-    
+
+        // study
+        let studyButton = this.add.text(400, 200, 'Study', { fill: '#fff' }).setInteractive();
+        studyButton.on('pointerdown', this.studyAction.bind(this));
+
         this.createMessage();
     }    
 
     update() {
         this.statusDisplay.text = player.getStatus();
+    }
+
+    studyAction() {
+        if (player.hasSufficientEnergy(25)) {
+            player.updateAttributes({
+                intellect: 5,
+                coding: 5,
+                energy: -25
+            });
+        } else {
+            this.showMessage("Not enough energy to study!");
+        }
     }
 
     converseAction() {
@@ -317,12 +341,98 @@ class CafeScene extends BaseScene {
     }
 }
 
+class BackAlleyScene extends BaseScene {
+    constructor() {
+        super({ key: 'BackAlleyScene' });
+    }
+
+    preload() {
+    this.load.image('backAlleyBackground', 'assets/images/back_alley_repeat.png');
+    }
+
+    create() {
+        super.create();
+
+        this.setBackground('backAlleyBackground');
+
+        let downtownButton = this.add.text(250, 100, 'Return to Downtown', { fill: '#fff' }).setInteractive();
+        downtownButton.on('pointerdown', () => this.scene.start('DowntownScene'));
+    
+        let fightButton = this.add.text(250, 200, 'Fight for money', { fill: '#fff' }).setInteractive();
+        fightButton.on('pointerdown', this.fightAction.bind(this));
+
+        let gambleButton = this.add.text(550, 200, 'Gamble', { fill: '#fff' }).setInteractive();
+        gambleButton.on('pointerdown', () => this.scene.start('GambleScene'));
+
+        this.createMessage();
+    }    
+
+    update() {
+        this.statusDisplay.text = player.getStatus();
+    }
+
+    fightAction() {
+        if (player.hasSufficientEnergy(50)) {
+            player.updateAttributes({
+                endurance: 5,
+                energy: -50
+            });
+        } else {
+            this.showMessage("Not enough energy to fight!");
+        }
+    }
+}
+
+class GambleScene extends BaseScene {
+    constructor() {
+        super({ key: 'GambleScene' });
+    }
+
+    preload() {
+    this.load.image('backAlleyBackground', 'assets/images/back_alley_repeat.png');
+    }
+
+    create() {
+        super.create();
+        this.setBackground('backAlleyBackground');
+
+        let backAlleyButton = this.add.text(250, 100, 'Return to Downtown', { fill: '#fff' }).setInteractive();
+        backAlleyButton.on('pointerdown', () => this.scene.start('BackAlleyScene'));
+
+        let gambleButton = this.add.text(550, 200, 'Set 50 on bum fight', { fill: '#fff' }).setInteractive();
+        gambleButton.on('pointerdown', this.gambleAction.bind(this));
+
+        this.createMessage();
+    }    
+
+    update() {
+        this.statusDisplay.text = player.getStatus();
+    }
+
+    gambleAction() {
+        if (player.hasEnoughMoney(50)) {
+            if (Phaser.Math.Between(1, 2)=== 1) {
+                player.updateAttributes({money: 50});
+                this.showMessage("Your bum won - you won 50");
+            } else {
+                player.updateAttributes({money: -50});
+                this.showMessage("Your bum lost - you lost 50");
+            }
+        } else {
+            this.showMessage("Not enough money to gamble!");
+        }
+    }
+}
+
+const MAX_WIDTH = 1200;
+const MAX_HEIGHT = 1080;
+
 // Game configuration
 const config = {
     type: Phaser.AUTO,
-    width: 800, // initial width
-    height: 600, // initial height
-    scene: [MainScene, WorkScene, SchoolScene, BarScene, CafeScene], // other configurations
+    width: Math.min(window.innerWidth, MAX_WIDTH),
+    height: Math.min(window.innerHeight, MAX_HEIGHT),
+    scene: [MainScene, DowntownScene, WorkScene, BarScene, CafeScene, BackAlleyScene, GambleScene],
     scale: {
         mode: Phaser.Scale.FIT,
         autoCenter: Phaser.Scale.CENTER_BOTH
@@ -331,4 +441,10 @@ const config = {
 
 // Instantiate the game
 let game = new Phaser.Game(config);
+
+window.addEventListener('resize', function(event) {
+    let w = Math.min(window.innerWidth, MAX_WIDTH);
+    let h = Math.min(window.innerHeight, MAX_HEIGHT);
+    game.scale.resize(w, h);
+});
 
